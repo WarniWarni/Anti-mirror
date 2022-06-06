@@ -15,6 +15,8 @@ int minimumDistance2InLast5seconds(int distance2);
 int minimumDistance3InLast5seconds(int distance3);
 int minimumDistance4InLast5seconds(int distance4);
 
+int minimumDistance2InLast2Seconds(int distance2);
+
 int maximumStateP1inLast10seconds(bool stateP1);
 
 int maximumStateP2inLast10seconds(bool stateP2);

@@ -1,10 +1,11 @@
 #include "utils.h"
 
 
-int distance1array[5] = {999};
-int distance2array[5] = {999};
-int distance3array[5] = {999};
-int distance4array[5] = {999};
+int distance1array[5] = {999, 999, 999, 999, 999};
+int distance2array[5] = {999, 999, 999, 999, 999};
+int distance3array[5] = {999, 999, 999, 999, 999};
+int distance4array[5] = {999, 999, 999, 999, 999};
+int distance2array_short[2] = {999, 999};
 int stateP1array[10] = {0};
 int stateP2array[10] = {0};
 
@@ -48,6 +49,10 @@ int getDistance(int trigPin, int echoPin) {
   digitalWrite(trigPin, LOW);
 
   duration = pulseIn(echoPin, HIGH);
+  int distance = duration * 0.034 / 2;
+  if (distance == 0) {
+    return 999;
+  }
   return duration * 0.034 / 2;
 }
 
@@ -63,20 +68,30 @@ bool getUltrasoundSensorState(int measured_distance, int threshold) {
     return 0; //state LOW
   }
 }
+//
+int minimumDistance2InLast2Seconds(int distance2){
+  memcpy(distance2array_short, &distance2array_short[1], sizeof(distance2array_short) - sizeof(int));
+  distance2array_short[1] =  distance2;
+  return getMin(distance2array_short, 2);
+}
+
 
 // functions to calculate extreme values per specified time
 int minimumDistance1InLast5seconds(int distance1) {
   // get time, save last X=5 records for each distance and return its minimum
   memcpy(distance1array, &distance1array[1], sizeof(distance1array) - sizeof(int));
   distance1array[4] =  distance1;
-
   return getMin(distance1array, 5);
 }
 int minimumDistance2InLast5seconds(int distance2) {
   // get time, save last X=5 records for each distance and return its minimum
   memcpy(distance2array, &distance2array[1], sizeof(distance2array) - sizeof(int)); //przesuń ostatnie wartości o jeden w lewo (usun najstarszy, dodaj najnowszy)
   distance2array[4] =  distance2;
-
+//  Serial.println("distance2array");
+//
+//  for (int i=0; i<5; i++) {
+//  Serial.println(distance2array[i]);
+//  }
   return getMin(distance2array, 5); // return the lowest value from the array
 }
 
@@ -84,14 +99,22 @@ int minimumDistance3InLast5seconds(int distance3) {
   // get time, save last X=5 records for each distance and return its minimum
   memcpy(distance3array, &distance3array[1], sizeof(distance3array) - sizeof(int)); //przesuń ostatnie wartości o jeden w lewo (usun najstarszy, dodaj najnowszy)
   distance3array[4] =  distance3;
-
+//  Serial.println("distance3array");
+//
+//  for (int i=0; i<5; i++) {
+//  Serial.println(distance3array[i]);
+//  }
   return getMin(distance3array, 5); // return the lowest value from the array
 }
 int minimumDistance4InLast5seconds(int distance4) {
   // get time, save last X=5 records for each distance and return its minimum
   memcpy(distance4array, &distance4array[1], sizeof(distance4array) - sizeof(int)); //przesuń ostatnie wartości o jeden w lewo (usun najstarszy, dodaj najnowszy)
   distance4array[4] =  distance4;
-
+//  Serial.println("distance4array");
+//
+//  for (int i=0; i<5; i++) {
+//  Serial.println(distance4array[i]);
+//  }
   return getMin(distance4array, 5); // return the lowest value from the array
 }
 
@@ -99,7 +122,6 @@ int maximumStateP1inLast10seconds(bool stateP1) {
   // get time, save last X=5 records for each distance and return its minimum
   memcpy(stateP1array, &stateP1array[1], sizeof(stateP1array) - sizeof(int));
   stateP1array[4] =  stateP1;
-
   return getMax(stateP1array, 10);
 }
 

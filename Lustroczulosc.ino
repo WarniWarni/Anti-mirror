@@ -83,6 +83,8 @@ void controlMirror(int threshold) {
   int S3_min = minimumDistance3InLast5seconds(S3_distance);
   int S4_min = minimumDistance4InLast5seconds(S4_distance);
 
+  int S2_min_short = minimumDistance2InLast2Seconds(S2_distance);
+
   bool S1_state_lagging = getUltrasoundSensorState(S1_min, threshold);
   bool S2_state_lagging = getUltrasoundSensorState(S2_min, threshold);
   bool S3_state_lagging = getUltrasoundSensorState(S3_min, threshold);
@@ -90,29 +92,34 @@ void controlMirror(int threshold) {
   bool P1_state_lagging = maximumStateP1inLast10seconds(P1_state);
   bool P2_state_lagging = maximumStateP2inLast10seconds(P2_state);
 
+  bool S2_state_lagging_short = getUltrasoundSensorState(S2_min_short, threshold);
 
-  if ((S1_state_lagging || S2_state_lagging || S3_state_lagging || S4_state_lagging) && (P1_state_lagging || P2_state_lagging)) { // jeśli czujniki PIR wykryły ruch, a czujniki ultradźwiękowe obecność
+
+  
+  if ((/*S1_state_lagging ||*/ S2_state_lagging /*|| S3_state_lagging || S4_state_lagging*/) && (P1_state_lagging || P2_state_lagging) && isEnabled == 0) { // jeśli czujniki PIR wykryły ruch, a czujniki ultradźwiękowe obecność
 //    relayOff(relayPin);
-    decreaseTransparency(0.01, 20); //float stepSize=0.01, int incrementTime=50
+//    Serial.println("\nFirst If: found object...\n");
+    decreaseTransparency(0.04, 35); //float stepSize=0.01, int incrementTime=50
     isEnabled = 1;
   }
-  else if ((S1_state_lagging || S2_state_lagging || S3_state_lagging || S4_state_lagging) && isEnabled == 1){ // jeśli czujnik/i ultradzwiekowe czuja obecnosc, ale PIR nie widzi ruchu, a stan jest wysoki:
-    
+  else if ((/*S1_state_lagging || */S2_state_lagging /*|| S3_state_lagging || S4_state_lagging*/) && isEnabled == 1){ // jeśli czujnik/i ultradzwiekowe czuja obecnosc, ale PIR nie widzi ruchu, a stan jest wysoki:
+//    Serial.println("\nSecond If: object in view\n");
   }
-  else { // jesli nie ma ruchu ani obecnosci bliskiej
+  else if (/*not S1_state_lagging && */not S2_state_lagging_short /*&& not S3_state_lagging && not S4_state_lagging*/ && isEnabled == 1){ // jesli nie ma ruchu ani obecnosci bliskiej
 //    relayOn(relayPin);
-    increaseTransparency(0.02, 20); //float stepSize=0.01, int incrementTime=50
+//    Serial.println("\nThird If: object not visible\n");
+    increaseTransparency(0.1, 35); //float stepSize=0.01, int incrementTime=50
     isEnabled = 0;
   }
-
+  
   printMessage1(message2, S1_distance, S2_distance, S3_distance, S4_distance, P1_state_lagging, P2_state_lagging);
-  printMessage2(message, S1_state_lagging, S2_state_lagging, S3_state_lagging, S4_state_lagging, P1_state_lagging, P2_state_lagging);
+//  printMessage2(message, S1_state_lagging, S2_state_lagging, S3_state_lagging, S4_state_lagging, P1_state_lagging, P2_state_lagging);
 }
 
 
 void loop() {
-  if (timer > 1000) { // check sensor states every 1000 ms
-    controlMirror(200); //thresholdDistance=200
+  if (timer > 100) { // check sensor states every 1000 ms
+    controlMirror(180); //thresholdDistance=200
 
     timer = 0;
   }
